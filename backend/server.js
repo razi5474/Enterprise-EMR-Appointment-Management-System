@@ -13,6 +13,8 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/v1/auth', require('./routes/authRoutes'));
+
 // Health check route — sanity check before building anything real
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Server is healthy', data: {}, meta: {} });
