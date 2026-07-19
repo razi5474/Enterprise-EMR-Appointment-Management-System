@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { login } = require('../controllers/authController');
+const { login, logout, refresh } = require('../controllers/authController');
 const authenticate = require('../middlewares/authMiddleware');
 const authorize = require('../middlewares/roleMiddleware');
 
 router.post('/login', login);
-router.get('/test-protected', authenticate, authorize('super_admin'), (req, res) => {
-  res.json({ success: true, message: `Hello ${req.user.role}, you are authorized.` });
-});
+router.post('/refresh', refresh);
+router.post('/logout', logout);
 
 module.exports = router;

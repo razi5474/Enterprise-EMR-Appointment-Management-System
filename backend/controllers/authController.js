@@ -2,6 +2,7 @@ const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateTokens');
 const ApiResponse = require('../utils/apiResponse');
+const jwt = require('jsonwebtoken');
 
 const login = async (req, res, next) => {
   try {
@@ -44,4 +45,61 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { login };
+const refresh = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return ApiResponse.error(res, { statusCode: 400, message: 'Refresh token is required' });
+    }
+
+    // 1. Is it a valid, unexpired JWT?
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+      return ApiResponse.error(res, { statusCode: 401, message: 'Invalid or expired refresh token' });
+    }
+
+    // 2. Does it still exist in our DB? (not logged out / revoked)
+    const storedToken = await RefreshToken.findOne({ token: refreshToken, user: decoded.id });
+    if (!storedToken) {
+      return ApiResponse.error(res, { statusCode: 401, message: 'Refresh token not recognized' });
+    }
+
+    // 3. Issue a fresh access token
+    const user = await User.findById(decoded.id);
+    if (!user || !user.isActive) {
+      return ApiResponse.error(res, { statusCode: 401, message: 'User not found or inactive' });
+    }
+
+    const newAccessToken = generateAccessToken(user);
+
+    return ApiResponse.success(res, {
+      statusCode: 200,
+      message: 'Access token refreshed',
+      data: { accessToken: newAccessToken },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return ApiResponse.error(res, { statusCode: 400, message: 'Refresh token is required' });
+    }
+
+    // Delete it from DB — this is the actual "invalidation"
+    await RefreshToken.deleteOne({ token: refreshToken });
+
+    return ApiResponse.success(res, { statusCode: 200, message: 'Logged out successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { login, refresh, logout };
