@@ -24,6 +24,7 @@ app.use('/api/v1/users', require('./routes/userRoutes'));
 app.use('/api/v1/doctors', require('./routes/doctorRoutes'));
 app.use('/api/v1/slots', require('./routes/slotRoutes'));
 app.use('/api/v1/appointments', require('./routes/appointmentRoutes'));
+app.use('/api/v1/audit-logs', require('./routes/auditRoutes'));
 
 // Health check route — sanity check before building anything real
 app.get('/health', (req, res) => {

@@ -3,6 +3,7 @@ const RefreshToken = require('../models/RefreshToken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateTokens');
 const ApiResponse = require('../utils/apiResponse');
 const jwt = require('jsonwebtoken');
+const logAction = require('../utils/auditLogger');
 
 const login = async (req, res, next) => {
   try {
@@ -30,6 +31,8 @@ const login = async (req, res, next) => {
     // Persist the refresh token so logout/refresh can validate it server-side
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     await RefreshToken.create({ user: user._id, token: refreshToken, expiresAt });
+
+    await logAction({ userId: user._id, role: user.role, action: 'LOGIN', entity: 'User', entityId: user._id });
 
     return ApiResponse.success(res, {
       statusCode: 200,

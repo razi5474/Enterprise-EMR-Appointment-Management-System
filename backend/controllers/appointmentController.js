@@ -11,6 +11,7 @@ const {
   isToday,
   timeToMinutes,
 } = require('../services/slotService');
+const logAction = require('../utils/auditLogger');
 
 const createAppointment = async (req, res, next) => {
   try {
@@ -75,7 +76,13 @@ const createAppointment = async (req, res, next) => {
       });
 
       // TODO: emit socket event here once Socket.IO is wired up
-      // TODO: write audit log entry here
+      await logAction({
+        userId: req.user.id,
+        role: req.user.role,
+        action: 'APPOINTMENT_CREATED',
+        entity: 'Appointment',
+        entityId: appointment._id,
+      });
 
       return ApiResponse.success(res, {
         statusCode: 201,
@@ -179,6 +186,14 @@ const updateAppointment = async (req, res, next) => {
 
     await appointment.save();
 
+    await logAction({
+      userId: req.user.id,
+      role: req.user.role,
+      action: 'APPOINTMENT_UPDATED',
+      entity: 'Appointment',
+      entityId: appointment._id,
+    });
+
     return ApiResponse.success(res, {
       statusCode: 200,
       message: 'Appointment updated successfully',
@@ -198,6 +213,14 @@ const cancelAppointment = async (req, res, next) => {
     }
     appointment.status = 'cancelled';
     await appointment.save();
+
+    await logAction({
+      userId: req.user.id,
+      role: req.user.role,
+      action: 'APPOINTMENT_CANCELLED',
+      entity: 'Appointment',
+      entityId: appointment._id,
+    });
 
     return ApiResponse.success(res, { statusCode: 200, message: 'Appointment cancelled successfully', data: appointment });
   } catch (err) {
