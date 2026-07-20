@@ -97,4 +97,131 @@ const createAppointment = async (req, res, next) => {
   }
 };
 
-module.exports = { createAppointment };
+const getAppointments = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      doctorId,
+      status,
+      department,
+      dateFrom,
+      dateTo,
+      search, // matches patient name or mobile
+    } = req.query;
+
+    const filter = {};
+    if (doctorId) filter.doctor = doctorId;
+    if (status) filter.status = status;
+    if (department) filter.department = department;
+    if (dateFrom || dateTo) {
+      filter.date = {};
+      if (dateFrom) filter.date.$gte = dateFrom;
+      if (dateTo) filter.date.$lte = dateTo;
+    }
+
+    // Doctors should only ever see their own appointments (RBAC at the query level)
+    if (req.user.role === 'doctor') {
+      const Doctor = require('../models/Doctor');
+      const doctorProfile = await Doctor.findOne({ user: req.user.id });
+      filter.doctor = doctorProfile?._id;
+    }
+
+    let query = Appointment.find(filter)
+      .populate('patient', 'name mobile')
+      .populate({ path: 'doctor', populate: { path: 'user', select: 'name' } })
+      .sort({ date: -1, slotTime: 1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    // Simple patient search by name or mobile, applied via a join-then-filter approach
+    let appointments = await query.lean();
+
+    if (search) {
+      const s = search.toLowerCase();
+      appointments = appointments.filter(
+        (a) => a.patient?.name?.toLowerCase().includes(s) || a.patient?.mobile?.includes(s)
+      );
+    }
+
+    const total = await Appointment.countDocuments(filter);
+
+    return ApiResponse.success(res, {
+      statusCode: 200,
+      message: 'Appointments fetched successfully',
+      data: appointments,
+      meta: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { purpose, notes, status } = req.body;
+
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return ApiResponse.error(res, { statusCode: 404, message: 'Appointment not found' });
+    }
+
+    if (purpose !== undefined) appointment.purpose = purpose;
+    if (notes !== undefined) appointment.notes = notes;
+    if (status !== undefined) {
+      const validTransitions = ['scheduled', 'arrived', 'completed', 'cancelled'];
+      if (!validTransitions.includes(status)) {
+        return ApiResponse.error(res, { statusCode: 400, message: 'Invalid status value' });
+      }
+      appointment.status = status;
+    }
+
+    await appointment.save();
+
+    return ApiResponse.success(res, {
+      statusCode: 200,
+      message: 'Appointment updated successfully',
+      data: appointment,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const cancelAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return ApiResponse.error(res, { statusCode: 404, message: 'Appointment not found' });
+    }
+    appointment.status = 'cancelled';
+    await appointment.save();
+
+    return ApiResponse.success(res, { statusCode: 200, message: 'Appointment cancelled successfully', data: appointment });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const markArrived = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return ApiResponse.error(res, { statusCode: 404, message: 'Appointment not found' });
+    }
+    if (appointment.status !== 'scheduled') {
+      return ApiResponse.error(res, { statusCode: 400, message: `Cannot mark arrived from status '${appointment.status}'` });
+    }
+    appointment.status = 'arrived';
+    await appointment.save();
+
+    return ApiResponse.success(res, { statusCode: 200, message: 'Patient marked as arrived', data: appointment });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { createAppointment, getAppointments, updateAppointment, cancelAppointment, markArrived };

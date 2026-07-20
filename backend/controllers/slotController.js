@@ -1,6 +1,7 @@
 const Doctor = require('../models/Doctor');
 const DoctorSchedule = require('../models/DoctorSchedule');
 const ApiResponse = require('../utils/apiResponse');
+const Appointment = require('../models/Appointment');
 const {
   generateSlotsForDay,
   getWeekday,
@@ -48,9 +49,20 @@ const getSlots = async (req, res, next) => {
       slots = slots.filter((slot) => timeToMinutes(slot) > nowMinutes);
     }
 
-    // TODO: once Appointment model exists, mark each slot booked/available
-    // by checking existing appointments for this doctor+date
-    const slotData = slots.map((time) => ({ time, status: 'available' }));
+    // Find existing non-cancelled appointments for this doctor+date,
+    // so we can mark which generated slots are actually booked.
+    const bookedAppointments = await Appointment.find({
+      doctor: doctorId,
+      date,
+      status: { $in: ['scheduled', 'arrived', 'completed'] },
+    }).select('slotTime');
+
+    const bookedTimes = new Set(bookedAppointments.map((a) => a.slotTime));
+
+    const slotData = slots.map((time) => ({
+      time,
+      status: bookedTimes.has(time) ? 'booked' : 'available',
+    }));
 
     return ApiResponse.success(res, {
       statusCode: 200,
