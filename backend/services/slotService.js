@@ -31,4 +31,25 @@ const generateSlotsForDay = (sessions, slotDurationMinutes) => {
   return slots;
 };
 
-module.exports = { generateSlotsForDay, timeToMinutes, minutesToTime };
+const getWeekday = (dateStr) => {
+  // dateStr expected as "YYYY-MM-DD"
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const date = new Date(dateStr + 'T00:00:00');
+  return days[date.getDay()];
+};
+
+const isPastDate = (dateStr) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const inputDate = new Date(dateStr + 'T00:00:00');
+  return inputDate < today;
+};
+
+const isToday = (dateStr) => {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return dateStr === todayStr;
+};
+
+
+module.exports = { generateSlotsForDay, timeToMinutes, minutesToTime, getWeekday, isPastDate, isToday };

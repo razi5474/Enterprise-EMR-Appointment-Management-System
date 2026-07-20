@@ -16,6 +16,7 @@ app.use(express.json());
 app.use('/api/v1/auth', require('./routes/authRoutes'));
 app.use('/api/v1/users', require('./routes/userRoutes'));
 app.use('/api/v1/doctors', require('./routes/doctorRoutes'));
+app.use('/api/v1/slots', require('./routes/slotRoutes'));
 
 // Health check route — sanity check before building anything real
 app.get('/health', (req, res) => {
