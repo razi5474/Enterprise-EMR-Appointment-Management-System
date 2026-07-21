@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Scheduler from './pages/Scheduler';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/scheduler" element={<Scheduler />} />
         {/* Scheduler, Appointments, Doctors, Audit Log routes get added here as we build them */}
       </Route>
 
