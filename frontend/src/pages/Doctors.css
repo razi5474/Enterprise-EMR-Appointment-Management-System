@@ -1,0 +1,62 @@
+.doc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.doc-title { font-size: 22px; margin: 0 0 4px; }
+.doc-subtitle { color: var(--color-text-muted); font-size: 13px; margin: 0; }
+
+.doc-add-btn, .doc-modal-actions button[type="submit"] {
+  padding: 10px 18px; font-size: 13px; font-weight: 600; color: #fff;
+  background: var(--color-primary); border: none; border-radius: var(--radius); cursor: pointer;
+}
+
+.doc-error { background: var(--color-error-bg); color: var(--color-error); padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; }
+.doc-success { background: #eef7f5; color: var(--color-primary); padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; }
+
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+.doc-card {
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: 20px;
+}
+.doc-card h3 { margin: 0 0 4px; font-size: 15px; }
+.doc-dept { font-size: 13px; color: var(--color-primary); margin: 0 0 4px; }
+.doc-email { font-size: 12px; color: var(--color-text-muted); margin: 0 0 14px; }
+.doc-card button {
+  width: 100%; padding: 8px; font-size: 12px; border: 1px solid var(--color-border);
+  border-radius: 6px; background: var(--color-bg); cursor: pointer;
+}
+
+.doc-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(15, 35, 43, 0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.doc-modal {
+  background: var(--color-surface); border-radius: 12px; padding: 28px;
+  width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
+}
+.doc-modal h2 { margin: 0 0 18px; font-size: 17px; }
+.doc-modal form { display: flex; flex-direction: column; gap: 10px; }
+.doc-modal input {
+  padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 13px;
+}
+.doc-modal-label { font-size: 12px; font-weight: 600; color: var(--color-text-muted); margin-top: 8px; }
+
+.doc-days { display: flex; gap: 6px; flex-wrap: wrap; }
+.doc-days button {
+  padding: 6px 10px; font-size: 12px; border: 1px solid var(--color-border); border-radius: 6px;
+  background: var(--color-bg); cursor: pointer; text-transform: capitalize;
+}
+.doc-days button.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+.doc-session-row { display: flex; align-items: center; gap: 8px; }
+.doc-session-row input { flex: 1; }
+.doc-session-row button { border: none; background: var(--color-error-bg); color: var(--color-error); border-radius: 6px; width: 28px; cursor: pointer; }
+
+.doc-add-session {
+  align-self: flex-start; background: none; border: none; color: var(--color-primary);
+  font-size: 12px; cursor: pointer; padding: 0;
+}
+
+.doc-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.doc-modal-actions button[type="button"] {
+  padding: 10px 16px; font-size: 13px; border: 1px solid var(--color-border);
+  border-radius: var(--radius); background: var(--color-surface); cursor: pointer;
+}

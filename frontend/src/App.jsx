@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Scheduler from './pages/Scheduler';
 import Booking from './pages/Booking';
 import AppointmentList from './pages/AppointmentList';
+import Doctors from './pages/Doctors';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/scheduler" element={<Scheduler />} />
         <Route path="/book" element={<Booking />} />
         <Route path="/appointments" element={<AppointmentList />} />
+        <Route path="/doctors" element={<Doctors />} />
         {/* Scheduler, Appointments, Doctors, Audit Log routes get added here as we build them */}
       </Route>
 
