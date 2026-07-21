@@ -25,7 +25,7 @@ app.use('/api/v1/doctors', require('./routes/doctorRoutes'));
 app.use('/api/v1/slots', require('./routes/slotRoutes'));
 app.use('/api/v1/appointments', require('./routes/appointmentRoutes'));
 app.use('/api/v1/audit-logs', require('./routes/auditRoutes'));
-
+app.use('/api/v1/patients', require('./routes/patientRoutes'));
 // Health check route — sanity check before building anything real
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Server is healthy', data: {}, meta: {} });

@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Scheduler from './pages/Scheduler';
+import Booking from './pages/Booking';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scheduler" element={<Scheduler />} />
+        <Route path="/book" element={<Booking />} />
         {/* Scheduler, Appointments, Doctors, Audit Log routes get added here as we build them */}
       </Route>
 
